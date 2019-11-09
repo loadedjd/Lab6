@@ -24,6 +24,8 @@ count:
 
 	movq %rdi,   %r8   # Hold on to the address of the first character
 	movq $0,     %r9   # This will hold the current character
+
+	movq $0,     %rax  # Clear rax
 	
 	loop:
 
@@ -33,7 +35,7 @@ count:
 		incq %r8         # Make r8 hold the address of the second char
 
 
-		cmpq $0,    %r9b
+		cmpb $0,    %r9b
 		jz done          #Check for null terminating string ... I think
 
 		cmpb %sil,  %r9b # Compare the second function param to the current character
@@ -44,7 +46,8 @@ count:
 		jg   loop        # If the first character is greater than the 3rd function param its outside of the range
 		
 		incq %rax        # Increment our count if the char is the range
-
+		
+		jmp loop
 
 	done:
 		leave
