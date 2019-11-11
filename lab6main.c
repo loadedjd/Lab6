@@ -15,6 +15,10 @@ NULL
 
 };
 
+
+
+char *strings2[] = {"HI", NULL};
+
 char *search(char *strings[], char lower, char upper);
 
 main()
@@ -24,7 +28,7 @@ main()
 	ptr = search(strings, lower, upper);
 printf("Lab6: '%s' has the most between '%c' and '%c'\n\n", ptr, lower, upper);
 
-	lower = 'a'; upper = 'z';
+/**	lower = 'a'; upper = 'z';
 	ptr = search(strings, lower, upper);
 printf("Lab6: '%s' has the most between '%c' and '%c'\n\n", ptr, lower, upper);
 
@@ -32,7 +36,7 @@ printf("Lab6: '%s' has the most between '%c' and '%c'\n\n", ptr, lower, upper);
 	ptr = search(strings, lower, upper);
 printf("Lab6: '%s' has the most between '%c' and '%c'\n\n", ptr, lower, upper);
 	
-
+**/
 }
 
 

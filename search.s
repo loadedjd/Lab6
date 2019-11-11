@@ -12,6 +12,10 @@
 	LC0:
 		.string "search: %s has the most characters between %c and %c, with %d found\n"
 		 
+
+	LCTest:
+		.string "ECHO: %s \n"	
+
 .globl search
 	.type search,@function
 
@@ -23,44 +27,46 @@ search:
 	pushq %rbp
 	movq  %rsp,  %rbp  # Setup stack frame
 	
-	movq (%rdi), %r12  # Save the starting address of the string table
-	movq %rsi,   %r13  # Save the first char param
-	movq %rdx,   %r14  # Save the second char param
-	movq $0,     %r15  # Save the max count
-	movq %r12,   %rbx  # Save the pointer to the max string
+	movq $0,     %rax	
+	movq %rdi,   %r12    # Current String Pointer register
+	movq $0,     %r13    # Current max count register
+	movq (%r12), %r14    # Current max String pointer register
+	movq %rsi,   %r15    # Save first char param
+	movq %rdx,   %rbx    # Save the second char param
 
-
-	loop:
-		
-		movq %r12,  %rdi  # Move string pointer to first param of evaluate
-		cmpq %r15,  %rax  # Compare the running max count to what was returned by evaluate
+	#Lets try and read all of the strings
+	tableLoop:
+		movq (%r12),    %rdi  # Put the current string pointer as the first param to evaluate
+		movq %r15,    %rsi  # Put first char back
+		movq %rbx,    %rdx  # Put second char back
+	
 		
 		call evaluate
 
-		cmovg %rax, %r15  # If the result from evaluate is greater than the running max, than the running max will be equal to the result from evaluate	
-		cmovg %r12, %rbx  # If we have found a new max string, update the max pointer register
-		
-		addq $8,    %r12  # r12 holds the address of the current string, by adding 8 bytes we shluld get the next string pointer
+		cmp   %rax, %r13      # Compare the output of evaluate to the running max
+		cmovlq %rax, %r13      # If the value returned by evaluate is greater than the running max we need to update
+		cmovlq (%r12), %r14      # Same as above comment but we are updating the max string pointer
 
-		jz done           # If the add results in a zero, we have reached the null terminating string
-		
-		jmp loop
-		
+
+		addq 8(%r12), %r12  # Add 8 to get to the address of the next string
+		cmpq $0x0,    %r12
+
+		jz done
+		jmp tableLoop
+	
 
 	done:
 
-		
-		
-		movq $LC0, %rdi
-		movq %rbx, %rsi
-		movq %r13, %rdx
-		movq %r14, %rcx
-		movq %r15, %r8  # Setup for print
-	
+
+		movq $LC0,   %rdi
+		movq %r14,   %rsi
+		movq %r15,   %rdx
+		movq %rbx,   %rcx
+		movq %r13,   %r8   # Setup for print
+
 		call print
-		
-		movq %rbx, %rax  # Return pointer to string
 
 
-		leave
+		movq %r14, %rax     # Return max string pointer
 		ret
+		leave
