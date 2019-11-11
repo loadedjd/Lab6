@@ -10,7 +10,7 @@
 .data
 
 	LC0:
-		.string "search: %s has the most characters between %c and %c, with %d found"
+		.string "search: %s has the most characters between %c and %c, with %d found\n"
 		 
 .globl search
 	.type search,@function
@@ -44,6 +44,9 @@ search:
 
 		jz done           # If the add results in a zero, we have reached the null terminating string
 		
+		jmp loop
+		
+
 	done:
 
 		
