@@ -26,47 +26,42 @@ search:
 	
 	pushq %rbp
 	movq  %rsp,  %rbp  # Setup stack frame
-	
-	movq $0,     %rax	
-	movq %rdi,   %r12    # Current String Pointer register
-	movq $0,     %r13    # Current max count register
-	movq (%r12), %r14    # Current max String pointer register
-	movq %rsi,   %r15    # Save first char param
-	movq %rdx,   %rbx    # Save the second char param
 
-	#Lets try and read all of the strings
-	tableLoop:
-		movq (%r12),    %rdi  # Put the current string pointer as the first param to evaluate
-		movq %r15,    %rsi  # Put first char back
-		movq %rbx,    %rdx  # Put second char back
-	
+
+	movq %rdi,   %r12  # Save the initial string table
+	movq %rsi,   %r14  # Put first char in r14
+	movq %rdx,   %r15  # Put the second char in r15
+	movq $0,     %rbx  # Hold max counter
+	movq %r12,   %r13  # Current string pointer
+	movq %r13,   %r9   # Save max string pointer	
+
+	loop:
+		
+		movq (%r13),    %rdi
+		movq %r14,      %rsi
+		movq %r15,      %rdx
+
+		pushq %r9
+		pushq %r9          # Maintain 16byte align
 		
 		call evaluate
 
-		cmp   %rax, %r13      # Compare the output of evaluate to the running max
-		cmovlq %rax, %r13      # If the value returned by evaluate is greater than the running max we need to update
-		cmovlq (%r12), %r14      # Same as above comment but we are updating the max string pointer
+		popq %r9
+		popq %r9           # Maintain 16byte align
 
+		cmpq %rax, %rbx    # Compare the running max to the max returned by evaluate
+		cmovl %rax, %rbx   # If the running max is less than the one returned from evaluate, then store it
+		cmovl %r13, %r9    # Same as above comment, lets just update the max string pointer as well
 
-		addq 8(%r12), %r12  # Add 8 to get to the address of the next string
-		cmpq $0x0,    %r12
+		addq $8,      %r13 # Get address of next string
+
+		cmpq $0,      (%r13)
 
 		jz done
-		jmp tableLoop
+		jmp loop
+
 	
-
 	done:
-
-
-		movq $LC0,   %rdi
-		movq %r14,   %rsi
-		movq %r15,   %rdx
-		movq %rbx,   %rcx
-		movq %r13,   %r8   # Setup for print
-
-		call print
-
-
-		movq %r14, %rax     # Return max string pointer
+		movq %r9, %rax
 		ret
 		leave
