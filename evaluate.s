@@ -10,10 +10,10 @@
 .data
 
 	formatString:
-		.string "evaluate: Evaluating %s looking for letter between %c and %c .\n "
+		.string "evaluate: Evaluating '%s' looking for letter between '%c' and '%c' .\n "
 	
 	formatString2:
-		.string "evaluate: Found %d letters between %c and %c in %s \n"
+		.string "evaluate: Found %d letters between '%c' and '%c' in '%s' \n"
 
 		 
 .globl evaluate
@@ -26,7 +26,11 @@ evaluate:
 	
 	pushq %rbp
 	movq  %rsp,  %rbp  # Setup stack frame
-
+	
+	pushq %r12
+	pushq %r13
+	pushq %r14
+	pushq %r15         # Save callee saved registers
 
 
 	movq %rdi, %r12    # Save initial string, will have to move back to second arg
@@ -40,8 +44,6 @@ evaluate:
 	movq %r14,          %rcx  # Put second character as fourth param to printf
 
 	
-
-
 	call printf
 	
 	movq %r12, %rdi
@@ -63,5 +65,11 @@ evaluate:
 	movq %r15, %rax                # Move result of count back into rax
 
 	done:
+
+		popq %r15
+		popq %r14
+		popq %r13
+		popq %r12              # Put the callee saved registers back as they were		
+
 		leave
 		ret

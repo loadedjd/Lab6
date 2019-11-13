@@ -28,6 +28,14 @@ search:
 	movq  %rsp,  %rbp  # Setup stack frame
 
 
+	pushq %r12
+	pushq %r13
+	pushq %r14
+	pushq %r15
+	pushq %rbx
+	pushq %rbx         # Save callee saved registers, extra push is to maitain 16byte align
+
+
 	movq %rdi,   %r12  # Save the initial string table
 	movq %rsi,   %r14  # Put first char in r14
 	movq %rdx,   %r15  # Put the second char in r15
@@ -62,6 +70,14 @@ search:
 
 	
 	done:
+		
+		popq %rbx
+		popq %rbx
+		popq %r15
+		popq %r14
+		popq %r13
+		popq %r12
+
 		movq %r9, %rax
 		ret
 		leave
