@@ -58,8 +58,8 @@ search:
 		popq %r9           # Maintain 16byte align
 
 		cmpq %rax, %rbx    # Compare the running max to the max returned by evaluate
-		cmovl %rax, %rbx   # If the running max is less than the one returned from evaluate, then store it
-		cmovl %r13, %r9    # Same as above comment, lets just update the max string pointer as well
+		cmovlq %rax, %rbx   # If the running max is less than the one returned from evaluate, then store it
+		cmovlq (%r13), %r9    # Same as above comment, lets just update the max string pointer as well
 
 		addq $8,      %r13 # Get address of next string
 
@@ -71,13 +71,27 @@ search:
 	
 	done:
 		
+
+		movq $LC0, %rdi
+		movq %r9,  %rsi
+		movq %r14, %rdx
+		movq %r15, %rcx
+		movq %rbx, %r8    # Setup for print
+
+		pushq %r9
+		pushq %r9          # Save r9 since its a caller saved register and we are using it
+
+		call print
+		
+		popq %r9
+		popq %r9
 		popq %rbx
 		popq %rbx
 		popq %r15
 		popq %r14
 		popq %r13
-		popq %r12
+		popq %r12          # Return registers to original states, since they are callee saved
 
 		movq %r9, %rax
-		ret
 		leave
+		ret
